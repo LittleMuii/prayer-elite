@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prayer Elite Trainee Record</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one column — header + round tabs, then round summary → scoreboard → session grid → (open round) sign-up board. Method sheet at the end. */
+:root{
+  --bg:#f3f4f8; --surface:#ffffff; --ink:#1c2140; --muted:#5d6382; --line:#dfe2ec;
+  --accent:#3140a0; --accent-soft:#e7e9f8; --gold:#b07d1c; --gold-soft:#f7efdc;
+  --good:#2b7a57; --good-soft:#e1f2e9; --warn:#a8660a; --warn-soft:#fbeedb; --bad:#b03c3c; --bad-soft:#f8e3e3;
+  --h1:#e4e7f3; --h2:#f8e3e3; --h3:#fbeedb; --h4:#e8f1df; --h5:#d7eedf;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11131d; --surface:#1a1d2b; --ink:#e7e9f3; --muted:#9aa0bd; --line:#2c3045;
+  --accent:#9aa6f5; --accent-soft:#252a4a; --gold:#dcae55; --gold-soft:#33291a;
+  --good:#6cc79c; --good-soft:#18342a; --warn:#e4a64a; --warn-soft:#382a14; --bad:#ec8a8a; --bad-soft:#3a1d22;
+  --h1:#23263a; --h2:#3a1f25; --h3:#3a2d17; --h4:#25331f; --h5:#1a3a2b; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#11131d; --surface:#1a1d2b; --ink:#e7e9f3; --muted:#9aa0bd; --line:#2c3045;
+  --accent:#9aa6f5; --accent-soft:#252a4a; --gold:#dcae55; --gold-soft:#33291a;
+  --good:#6cc79c; --good-soft:#18342a; --warn:#e4a64a; --warn-soft:#382a14; --bad:#ec8a8a; --bad-soft:#3a1d22;
+  --h1:#23263a; --h2:#3a1f25; --h3:#3a2d17; --h4:#25331f; --h5:#1a3a2b; color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:26px;font-weight:700}
+h2{font-size:19px;font-weight:600}
+h3{font-size:16px;font-weight:600}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 64px;display:grid;gap:20px}
+header.top{display:grid;gap:14px}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand .tag{font-size:13px;color:var(--gold);font-weight:600;letter-spacing:.04em}
+.sub{color:var(--muted);font-size:14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.tab[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.tab .st{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.tab[aria-current="true"] .st{background:rgba(255,255,255,.22);color:inherit}
+.tab.new{border-style:dashed;color:var(--accent)}
+.wrap>*,#main>*{min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.fact{border-left:3px solid var(--gold);padding:2px 0 2px 12px}
+.fact b{display:block;font-family:var(--f-display);font-size:20px;font-variant-numeric:tabular-nums}
+.fact span{color:var(--muted);font-size:13px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.scroll{overflow-x:auto}
+table.score{border-collapse:collapse;width:100%;min-width:760px;font-variant-numeric:tabular-nums}
+table.score th,table.score td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+table.score th{font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.35}
+table.score th:first-child,table.score td:first-child{text-align:left}
+td.name{font-weight:600;white-space:nowrap}
+td.name small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.att{display:grid;gap:4px;min-width:110px}
+.att .bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.att .bar i{display:block;height:100%;background:var(--accent)}
+.att span{font-size:12.5px;color:var(--muted)}
+.sc{display:inline-block;min-width:46px;padding:3px 8px;border-radius:6px;font-weight:600;position:relative}
+.s1{background:var(--h2);color:var(--bad)} .s2{background:var(--h3);color:var(--warn)} .s3{background:var(--h1);color:var(--ink)} .s4{background:var(--h4);color:var(--good)} .s5{background:var(--h5);color:var(--good)}
+.sc.diff::after{content:"";position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--gold);border:2px solid var(--surface)}
+.total{font-family:var(--f-display);font-size:18px;font-weight:700}
+.pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
+.p5{background:var(--good-soft);color:var(--good)} .p4{background:var(--good-soft);color:var(--good)} .p3{background:var(--accent-soft);color:var(--accent)} .p2{background:var(--warn-soft);color:var(--warn)} .p1{background:var(--bad-soft);color:var(--bad)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:12px}
+.legend span{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;min-width:0}
+.notes{margin:14px 0 0;padding:12px 14px 12px 32px;background:var(--gold-soft);border-radius:8px;font-size:14px;display:grid;gap:6px}
+.notes li::marker{color:var(--gold)}
+/* session grid */
+table.grid{border-collapse:separate;border-spacing:0;font-size:12px}
+table.grid th,table.grid td{padding:0;text-align:center}
+table.grid thead th{padding:0 2px 6px;color:var(--muted);font-weight:500;vertical-align:bottom}
+table.grid thead th button{writing-mode:vertical-rl;transform:rotate(180deg);border:0;background:none;color:inherit;font:inherit;cursor:pointer;padding:4px 2px;border-radius:4px;white-space:nowrap}
+table.grid thead th button:hover{background:var(--accent-soft);color:var(--accent)}
+table.grid thead th.wk{border-left:1px solid var(--line)}
+table.grid tbody th{text-align:left;padding-right:12px;font-weight:600;font-size:13px;white-space:nowrap;position:sticky;left:0;background:var(--surface);z-index:1}
+table.grid td{width:22px;height:24px}
+table.grid td.wk{border-left:1px solid var(--line)}
+.g{display:inline-block;width:14px;height:14px;border-radius:50%;line-height:14px;font-size:10px;font-weight:700}
+.g.ok{background:var(--accent)}
+.g.walk{border:2.5px solid var(--warn);width:14px;height:14px}
+.g.miss{color:var(--bad);font-size:13px}
+.g.no{width:5px;height:5px;background:var(--line)}
+.g.na{width:14px;height:3px;border-radius:2px;background:var(--line);opacity:.5}
+.g.sign{border:2px dashed var(--accent)}
+/* buttons + forms */
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--surface);border-radius:8px;padding:8px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.danger{background:transparent;border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+label.f{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+input[type=text],input[type=date],input[type=time],select{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.chip .x{margin-left:6px;color:var(--muted)}
+.signup{display:grid;gap:12px}
+.slot{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:10px}
+.slot-h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.slot-h b{font-family:var(--f-display);font-size:16px}
+.empty{color:var(--muted);font-size:14px;padding:8px 0}
+.banner{padding:10px 14px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:14px}
+.banner.err{background:var(--bad-soft);color:var(--bad)}
+/* dialog */
+.overlay{position:fixed;inset:0;background:rgba(10,12,25,.45);display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto;z-index:20}
+.overlay.on{display:flex}
+.dlg{background:var(--surface);border-radius:14px;border:1px solid var(--line);width:min(760px,100%);padding:20px;display:grid;gap:16px}
+table.ed{width:100%;border-collapse:collapse;font-size:14px}
+table.ed th,table.ed td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:center}
+table.ed th:first-child,table.ed td:first-child{text-align:left}
+table.ed th{font-size:12.5px;color:var(--muted);font-weight:600}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.method{display:grid;gap:12px;font-size:14.5px}
+.method dl{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:8px 16px;margin:0}
+.method dt{font-weight:600}
+.method dd{margin:0;color:var(--muted)}
+.method code{font-size:13px;background:var(--bg);padding:1px 6px;border-radius:4px;color:var(--ink)}
+@media (max-width:560px){.method dl{grid-template-columns:1fr}.method dd{margin-bottom:6px}h1{font-size:22px}}
+@media (prefers-reduced-motion:no-preference){.tab,.chip,.btn{transition:background .15s,color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><h1>บันทึกการประเมินทีมอธิษฐาน</h1><span class="tag">PRAYER ELITE · TRAINEE</span></div>
+    <div class="sub">ผลการประเมินผู้ฝึก (Trainee) แต่ละรอบ · คะแนนเต็ม 5 ใน 5 หัวข้อ · ข้อมูล ณ 12 พ.ย. 2569</div>
+    <nav class="tabs" id="tabs" aria-label="เลือกรอบ"></nav>
+  </header>
+  <div id="status"></div>
+  <main id="main" style="display:grid;gap:20px"></main>
+  <section class="card method" id="method">
+    <h2>วิธีคิดคะแนน</h2>
+    <dl>
+      <dt>ความรับผิดชอบ (ลงชื่อ)</dt><dd>นับครั้งที่ "ลงชื่อ" ไม่ตรงกับ "มาจริง" (ลงชื่อแต่ไม่มา หรือมาโดยไม่ลงชื่อ) แล้วคิด <code>(1 − ครั้งที่ไม่ตรง ÷ ครั้งที่มา) × 5</code> ไม่ต่ำกว่า 0</dd>
+      <dt>ตรงต่อเวลา</dt><dd><code>ครั้งที่มาตรงเวลา ÷ ครั้งที่มา × 5</code></dd>
+      <dt>อธิษฐานตามหัวข้อ</dt><dd><code>ครั้งที่อธิษฐานตรงหัวข้อที่มอบหมาย ÷ ครั้งที่มา × 5</code></dd>
+      <dt>ความตั้งใจ</dt><dd>ผู้นำให้คะแนนแต่ละครั้ง 2.5 หรือ 5 แล้วเฉลี่ย <code>ผลรวม ÷ ครั้งที่มา</code></dd>
+      <dt>ความสม่ำเสมอ</dt><dd><code>ครั้งที่มา ÷ จำนวนครั้งที่เปิดอธิษฐาน × 5</code> นับเฉพาะครั้งตั้งแต่วันที่ผู้ฝึกเริ่มเข้าทีม</dd>
+      <dt>คะแนนรวม</dt><dd>ค่าเฉลี่ยของ 5 หัวข้อ · 5 ดีเยี่ยม เป็นแบบอย่างได้ · 4 ดี มีความพร้อม · 3 ปานกลาง ต้องพัฒนา · 2 ควรปรับปรุง · 1 ต้องปรับปรุงมาก</dd>
+    </dl>
+    <div class="sub">รอบ 1 บันทึกเฉพาะการมา คะแนนทั้ง 5 หัวข้อเป็นคะแนนที่ผู้ประเมินให้ · ตั้งแต่รอบ 2 คะแนนคิดจากบันทึกแต่ละครั้งตามสูตรด้านบน</div>
+  </section>
+</div>
+
+<div class="overlay" id="ov" role="dialog" aria-modal="true"><div class="dlg" id="dlg"></div></div>
+
+<script>
+const CRIT=[["resp","ความรับผิดชอบ (ลงชื่อ)"],["on","ตรงต่อเวลา"],["top","อธิษฐานตามหัวข้อ"],["int","ความตั้งใจ"],["cons","ความสม่ำเสมอ"]];
+const GRADE={5:"ดีเยี่ยม",4:"ดี",3:"ปานกลาง",2:"ควรปรับปรุง",1:"ต้องปรับปรุงมาก",0:"ยังไม่มีข้อมูล"};
+const S={rounds:{},sessions:[],view:null,mode:"official",db:null,canWrite:null,loaded:{r:false,s:false},ro:false,err:null};
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=n=>n==null||isNaN(n)?"–":(Math.round(n*100)/100).toFixed(2);
+const lvl=n=>n==null?0:Math.max(1,Math.min(5,Math.round(n)));
+const dshort=iso=>{const d=new Date(iso+"T00:00:00");return d.toLocaleDateString("th-TH",{day:"numeric",month:"short"})};
+const dlong=iso=>{if(!iso)return"–";const d=new Date(iso+"T00:00:00");return d.toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})};
+const dow=iso=>new Date(iso+"T00:00:00").toLocaleDateString("th-TH",{weekday:"short"});
+const roundList=()=>Object.entries(S.rounds).map(([id,r])=>({id,...r})).sort((a,b)=>(a.order||0)-(b.order||0));
+const sessOf=rid=>S.sessions.filter(s=>s.round===rid).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+const writable=()=>S.db&&S.canWrite!==false&&!S.ro;
+
+/* ---------- scoring (same formulas as the Google Sheet) ---------- */
+function score(round,sessions){
+  const done=sessions.filter(s=>s.done!==false);
+  const out={};
+  for(const t of round.trainees||[]){
+    const el=done.filter(s=>!t.from||s.date>=t.from);
+    let att=0,sign=0,mm=0,on=0,top=0,isum=0;
+    for(const s of el){const m=(s.m||{})[t.id]||{};const a=!!m.a,g=!!m.s;
+      if(a)att++; if(g)sign++; if(a!==g)mm++;
+      if(a){if(m.o)on++; if(m.t)top++; isum+=+m.i||0;}}
+    const r={att,sign,mm,n:el.length};
+    if(round.kind==="attendance"){r.cons=el.length?att/el.length*5:null;}
+    else if(att>0){r.resp=Math.max(0,(1-mm/att)*5);r.on=on/att*5;r.top=top/att*5;r.int=isum/att;r.cons=att/el.length*5;}
+    else if(el.length){r.resp=0;r.on=0;r.top=0;r.int=0;r.cons=0;}
+    const vals=CRIT.map(c=>r[c[0]]);
+    r.total=vals.every(v=>v!=null)?vals.reduce((a,b)=>a+b,0)/5:null;
+    out[t.id]=r;
+  }
+  return out;
+}
+
+/* ---------- render ---------- */
+function renderTabs(){
+  const rs=roundList();
+  const st={closed:"ปิดแล้ว",open:"เปิดอยู่",draft:"เตรียมเปิด"};
+  let h=rs.map(r=>`<button class="tab" aria-current="${S.view===r.id}" data-go="${esc(r.id)}">${esc(r.name)} <span class="st">${st[r.status]||""}</span></button>`).join("");
+  if(writable()&&S.loaded.r) h+=`<button class="tab new" data-act="newround">+ เปิดรอบใหม่</button>`;
+  $("#tabs").innerHTML=h;
+}
+function render(){
+  renderTabs();
+  const m=$("#main");
+  if(!S.db){m.innerHTML="";return;}
+  if(!S.loaded.r||!S.loaded.s){m.innerHTML=`<div class="card empty">กำลังโหลดข้อมูล…</div>`;return;}
+  const rs=roundList();
+  if(!rs.length){m.innerHTML=`<div class="card empty">ยังไม่มีข้อมูลรอบการประเมิน</div>`;return;}
+  if(!S.view||!S.rounds[S.view]) S.view=rs[rs.length-1].id;
+  renderTabs();
+  const r={id:S.view,...S.rounds[S.view]};
+  const ss=sessOf(r.id);
+  const done=ss.filter(s=>s.done!==false);
+  const sc=score(r,ss);
+  const hasOff=r.official&&Object.keys(r.official).length;
+  const useOff=hasOff&&(S.mode==="official"||r.kind==="attendance");
+  const avgAtt=(r.trainees||[]).length?(r.trainees.reduce((a,t)=>a+(sc[t.id].n?sc[t.id].att/sc[t.id].n:0),0)/r.trainees.length*100):0;
+  const first=done[0]?.date||r.start, last=done[done.length-1]?.date||r.end;
+  const openers={};done.forEach(s=>{if(s.opener)openers[s.opener]=(openers[s.opener]||0)+1});
+  let h=`<section class="card">
+    <div class="card-h"><h2>${esc(r.name)} · ภาพรวม</h2>${r.status!=="closed"&&writable()?`<div class="row"><button class="btn ghost" data-act="editround">ตั้งค่ารอบ</button></div>`:""}</div>
+    <div class="facts">
+      <div class="fact"><b>${first&&last&&first!==last?dlong(first)+" – "+dlong(last):(first?"เริ่ม "+dlong(first):"–")}</b><span>ช่วงเวลา</span></div>
+      <div class="fact"><b>${done.length} ครั้ง</b><span>เปิดอธิษฐาน${ss.length>done.length?` · นัดไว้อีก ${ss.length-done.length}`:""}</span></div>
+      <div class="fact"><b>${(r.trainees||[]).length} คน</b><span>ผู้ฝึก</span></div>
+      <div class="fact"><b>${avgAtt.toFixed(0)}%</b><span>อัตราการมาเฉลี่ย</span></div>
+      ${Object.keys(openers).length?`<div class="fact"><b style="font-size:16px">${Object.entries(openers).map(([k,v])=>esc(k)+" "+v).join(" · ")}</b><span>คนเปิด (ครั้ง)</span></div>`:(r.leaders?.length?`<div class="fact"><b style="font-size:16px">${r.leaders.map(esc).join(", ")}</b><span>ผู้นำ</span></div>`:"")}
+    </div></section>`;
+
+  // scoreboard
+  let B="";
+  if(!done.length&&!useOff){B=`<section class="card"><div class="card-h"><h2>ตารางคะแนน</h2></div><div class="empty">ยังไม่มีคะแนน จะคำนวณให้อัตโนมัติหลังบันทึกผลครั้งแรก</div></section>`;}
+  else{
+  B+=`<section class="card"><div class="card-h"><h2>ตารางคะแนน</h2>
+    ${hasOff&&r.kind!=="attendance"?`<div class="seg" role="group" aria-label="แหล่งคะแนน"><button aria-pressed="${S.mode==="official"}" data-mode="official">คะแนนที่ประเมินในชีต</button><button aria-pressed="${S.mode==="formula"}" data-mode="formula">คำนวณใหม่ตามสูตร</button></div>`:""}</div>
+    <div class="scroll"><table class="score"><thead><tr><th>ผู้ฝึก</th><th>การมา</th>${CRIT.map(c=>`<th>${c[1]}</th>`).join("")}<th>รวม</th></tr></thead><tbody>`;
+  const rows=(r.trainees||[]).map(t=>{const c=sc[t.id];const o=useOff?r.official[t.id]:null;
+    const v=k=>o&&o[k]!=null?o[k]:c[k];return{t,c,o,v,total:v("total")}});
+  rows.sort((a,b)=>(b.total??-1)-(a.total??-1));
+  for(const {t,c,o,v,total} of rows){
+    const pct=c.n?c.att/c.n*100:0;
+    B+=`<tr><td class="name">${esc(t.name)}${t.from?`<small>เริ่ม ${dshort(t.from)}</small>`:""}${t.note?`<small>${esc(t.note)}</small>`:""}</td>
+      <td><div class="att"><span>${c.att}/${c.n} ครั้ง · ลงชื่อ ${r.kind==="attendance"?"–":c.sign}</span><div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div></div></td>`;
+    for(const [k] of CRIT){const val=v(k);
+      const diff=o&&o[k]!=null&&c[k]!=null&&Math.abs(o[k]-c[k])>=0.05&&r.kind!=="attendance";
+      B+=`<td><span class="sc s${lvl(val)}${diff?" diff":""}" ${diff?`title="ตามสูตร ${fmt(c[k])}"`:""}>${fmt(val)}</span></td>`;}
+    const g=lvl(total);
+    B+=`<td><div class="total">${fmt(total)}</div><span class="pill p${g||3}">${GRADE[g]}</span></td></tr>`;
+  }
+  B+=`</tbody></table></div>`;
+  if(hasOff&&useOff&&r.kind!=="attendance") B+=`<div class="legend"><span><span class="sc s3 diff" style="min-width:18px;height:14px;padding:0"></span> ตัวเลขในชีตต่างจากที่คำนวณตามสูตร (ชี้เพื่อดูค่าตามสูตร)</span></div>`;
+  if(r.notes?.length) B+=`<ul class="notes">${r.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`;
+  B+=`</section>`;
+  }
+  // sign-up board for open rounds
+  let U="";
+  if(r.status!=="closed"){
+    const up=ss.filter(s=>s.done===false);
+    U+=`<section class="card"><div class="card-h"><h2>ลงชื่อรอบอธิษฐานถัดไป</h2>${writable()?`<button class="btn" data-act="newsession">+ เพิ่มวันอธิษฐาน</button>`:""}</div><div class="signup">`;
+    if(!up.length) U+=`<div class="empty">ยังไม่มีวันอธิษฐานที่นัดไว้ ${writable()?"กด “เพิ่มวันอธิษฐาน” เพื่อเปิดให้ผู้ฝึกลงชื่อ":""}</div>`;
+    for(const s of up){const n=(r.trainees||[]).filter(t=>(s.m||{})[t.id]?.s).length;
+      U+=`<div class="slot"><div class="slot-h"><div><b>${dow(s.date)} ${dshort(s.date)} · ${esc(s.time)} น.</b> <span class="sub">${s.opener?"คนเปิด "+esc(s.opener)+" · ":""}ลงชื่อแล้ว ${n} คน</span></div>
+        ${writable()?`<button class="btn ghost" data-edit="${esc(s.id)}">บันทึกผลหลังจบ</button>`:""}</div>
+        <div class="chips">${(r.trainees||[]).filter(t=>!t.from||s.date>=t.from).map(t=>`<button class="chip" aria-pressed="${!!(s.m||{})[t.id]?.s}" data-sign="${esc(s.id)}|${esc(t.id)}" ${writable()?"":"disabled"}>${esc(t.name)}</button>`).join("")}</div></div>`;}
+    U+=`</div></section>`;
+  }
+
+  h+=r.status!=="closed"?U+B:B+U;
+  // session grid
+  h+=`<section class="card"><div class="card-h"><h2>บันทึกรายครั้ง</h2><span class="sub">${r.status==="closed"?"กดวันที่เพื่อดูรายละเอียด":"กดวันที่เพื่อดูหรือแก้ไข"}</span></div>`;
+  if(!done.length) h+=`<div class="empty">ยังไม่มีครั้งที่บันทึกผลแล้ว</div>`;
+  else{
+    h+=`<div class="scroll"><table class="grid"><thead><tr><th></th>`;
+    let pw=null; const wk=done.map(s=>{const d=new Date(s.date+"T00:00:00");const w=Math.floor((d-new Date("2026-01-05"))/6048e5);const nw=pw!==null&&w!==pw;pw=w;return nw;});
+    done.forEach((s,i)=>{h+=`<th class="${wk[i]?"wk":""}"><button data-edit="${esc(s.id)}" title="${esc(dow(s.date)+" "+s.date+" "+s.time)}">${dshort(s.date)} ${esc(s.time)}</button></th>`;});
+    h+=`</tr></thead><tbody>`;
+    for(const t of r.trainees||[]){
+      h+=`<tr><th>${esc(t.name)}</th>`;
+      done.forEach((s,i)=>{const m=(s.m||{})[t.id]||{};let g;
+        if(t.from&&s.date<t.from) g=`<i class="g na" title="ยังไม่เข้าทีม"></i>`;
+        else if(r.kind==="attendance") g=m.a?`<i class="g ok" title="มา"></i>`:`<i class="g no"></i>`;
+        else if(m.a&&m.s) g=`<i class="g ok" title="ลงชื่อและมา"></i>`;
+        else if(m.a) g=`<i class="g walk" title="มาโดยไม่ได้ลงชื่อ"></i>`;
+        else if(m.s) g=`<i class="g miss" title="ลงชื่อแต่ไม่มา">✕</i>`;
+        else g=`<i class="g no"></i>`;
+        h+=`<td class="${wk[i]?"wk":""}">${g}</td>`;});
+      h+=`</tr>`;
+    }
+    h+=`</tbody></table></div><div class="legend">${r.kind==="attendance"?`<span><i class="g ok"></i> มา</span><span><i class="g no"></i> ไม่มา</span>`:`<span><i class="g ok"></i> ลงชื่อและมา</span><span><i class="g walk"></i> มาโดยไม่ได้ลงชื่อ</span><span><i class="g miss">✕</i> ลงชื่อแต่ไม่มา</span><span><i class="g no"></i> ไม่ได้ลงชื่อ ไม่มา</span>`}<span><i class="g na"></i> ยังไม่เข้าทีม</span><span>เส้นแบ่ง = ขึ้นสัปดาห์ใหม่</span></div>`;
+  }
+  h+=`</section>`;
+  m.innerHTML=h;
+}
+function setStatus(){
+  const el=$("#status");
+  if(S.err) el.innerHTML=`<div class="banner err">${esc(S.err)}</div>`;
+  else if(S.db===null&&S.tried) el.innerHTML=`<div class="banner">ต้องเข้าสู่ระบบ claude.ai เพื่อดูข้อมูลการประเมิน</div>`;
+  else if(S.ro) el.innerHTML=`<div class="banner">คุณดูข้อมูลได้อย่างเดียว ขอสิทธิ์ Contributor จากเจ้าของหน้าเพื่อบันทึกผลหรือลงชื่อ</div>`;
+  else el.innerHTML="";
+}
+
+/* ---------- dialogs ---------- */
+function openDlg(html){$("#dlg").innerHTML=html;$("#ov").classList.add("on");const f=$("#dlg").querySelector("input,select,button");f&&f.focus();}
+function closeDlg(){$("#ov").classList.remove("on");$("#dlg").innerHTML="";}
+$("#ov").addEventListener("click",e=>{if(e.target.id==="ov")closeDlg();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDlg();});
+
+function sessionDlg(sid){
+  const r={id:S.view,...S.rounds[S.view]};
+  const s=sid?S.sessions.find(x=>x.id===sid):{round:r.id,date:new Date().toISOString().slice(0,10),time:"19:00",opener:(r.leaders||[])[0]||"",done:false,m:{}};
+  if(!s)return;
+  const edit=writable()&&r.status!=="closed";
+  const att=r.kind==="attendance";
+  const dis=edit?"":"disabled";
+  let h=`<h2>${sid?(edit?"บันทึกผล":"รายละเอียด"):"เพิ่มวันอธิษฐาน"} · ${esc(r.name)}</h2>
+  <div class="row">
+    <label class="f">วันที่<input type="date" id="f-date" value="${esc(s.date)}" ${dis}></label>
+    <label class="f">เวลา<input type="time" id="f-time" value="${esc(s.time)}" ${dis}></label>
+    ${att?"":`<label class="f">คนเปิด<select id="f-op" ${dis}><option value="">–</option>${(r.leaders||[]).concat(s.opener&&!(r.leaders||[]).includes(s.opener)?[s.opener]:[]).map(l=>`<option ${l===s.opener?"selected":""}>${esc(l)}</option>`).join("")}</select></label>`}
+  </div>
+  <div class="scroll"><table class="ed"><thead><tr><th>ผู้ฝึก</th>${att?"<th>มา</th>":"<th>ลงชื่อ</th><th>มา</th><th>ตรงเวลา</th><th>ตรงหัวข้อ</th><th>ความตั้งใจ</th>"}</tr></thead><tbody>`;
+  for(const t of r.trainees||[]){const m=(s.m||{})[t.id]||{};const id=t.id.replace(/[^a-zA-Z0-9_-]/g,"_");
+    if(t.from&&s.date<t.from&&sid){h+=`<tr><td>${esc(t.name)}</td><td colspan="${att?1:5}" class="sub">ยังไม่เข้าทีม</td></tr>`;continue;}
+    h+=`<tr data-t="${esc(t.id)}"><td>${esc(t.name)}</td>`;
+    if(att) h+=`<td><input type="checkbox" id="a-${id}" data-k="a" ${m.a?"checked":""} ${dis}></td>`;
+    else h+=`<td><input type="checkbox" id="s-${id}" data-k="s" ${m.s?"checked":""} ${dis} aria-label="ลงชื่อ"></td>
+      <td><input type="checkbox" id="a-${id}" data-k="a" ${m.a?"checked":""} ${dis} aria-label="มา"></td>
+      <td><input type="checkbox" id="o-${id}" data-k="o" ${m.o?"checked":""} ${dis} aria-label="ตรงเวลา"></td>
+      <td><input type="checkbox" id="t-${id}" data-k="t" ${m.t?"checked":""} ${dis} aria-label="ตรงหัวข้อ"></td>
+      <td><select id="i-${id}" data-k="i" ${dis} aria-label="ความตั้งใจ"><option value="">–</option><option ${m.i==2.5?"selected":""}>2.5</option><option ${m.i==5?"selected":""}>5</option></select></td>`;
+    h+=`</tr>`;}
+  h+=`</tbody></table></div>`;
+  if(edit) h+=`<label class="row" style="font-size:14px"><input type="checkbox" id="f-done" ${s.done!==false?"checked":""}> จบรอบนี้แล้ว นับเข้าคะแนน (ถ้ายังไม่ติ๊ก จะแสดงเป็นรอบที่เปิดให้ลงชื่อ)</label>`;
+  h+=`<div id="f-msg"></div><div class="row" style="justify-content:space-between">
+    <div>${edit&&sid?`<button class="btn danger" id="f-del">ลบวันนี้</button>`:""}</div>
+    <div class="row"><button class="btn ghost" id="f-cancel">${edit?"ยกเลิก":"ปิด"}</button>${edit?`<button class="btn" id="f-save">บันทึก</button>`:""}</div></div>`;
+  openDlg(h);
+  $("#f-cancel").onclick=closeDlg;
+  if(!edit)return;
+  $("#f-save").onclick=async()=>{
+    const date=$("#f-date").value,time=$("#f-time").value;
+    if(!date||!time){$("#f-msg").innerHTML=`<div class="banner err">ใส่วันที่และเวลาก่อนบันทึก</div>`;return;}
+    const m={};
+    document.querySelectorAll("#dlg tr[data-t]").forEach(tr=>{const o={};tr.querySelectorAll("[data-k]").forEach(inp=>{const k=inp.dataset.k;
+      if(k==="i"){if(inp.value)o.i=+inp.value;}else if(inp.checked)o[k]=1;});m[tr.dataset.t]=o;});
+    const doc={round:r.id,date,time,done:$("#f-done").checked,m};
+    if(!att) doc.opener=$("#f-op").value||"";
+    const newId=sid||`${r.id}-${date.replace(/-/g,"")}-${time.replace(":","")}`;
+    if(!sid&&S.sessions.some(x=>x.id===newId)){$("#f-msg").innerHTML=`<div class="banner err">มีวันที่และเวลานี้อยู่แล้ว</div>`;return;}
+    $("#f-save").disabled=true;
+    try{await S.db.collection("sessions").doc(newId).set(doc);closeDlg();}
+    catch(e){fail(e);$("#f-msg").innerHTML=`<div class="banner err">บันทึกไม่สำเร็จ: ${esc(e.message||e.code)}</div>`;$("#f-save").disabled=false;}
+  };
+  const del=$("#f-del");
+  if(del) del.onclick=async()=>{
+    if(del.dataset.sure!=="1"){del.dataset.sure="1";del.textContent="กดอีกครั้งเพื่อยืนยันการลบ";return;}
+    try{await S.db.collection("sessions").doc(sid).delete();closeDlg();}catch(e){fail(e);}
+  };
+}
+
+function roundDlg(rid){
+  const prev=roundList().filter(x=>x.kind!=="attendance").pop();
+  const r=rid?{id:rid,...S.rounds[rid]}:{name:`รอบ ${roundList().length+1}`,status:"open",kind:"full",start:new Date().toISOString().slice(0,10),
+    leaders:prev?.leaders?.slice()||[],trainees:(prev?.trainees||[]).map(t=>({id:t.id,name:t.name}))};
+  let tr=(r.trainees||[]).map(t=>({...t})), ld=(r.leaders||[]).slice();
+  const draw=()=>{
+    $("#f-tr").innerHTML=tr.map((t,i)=>`<button class="chip" data-rm="${i}">${esc(t.name)}<span class="x" aria-hidden="true">×</span></button>`).join("")||`<span class="sub">ยังไม่มีผู้ฝึก</span>`;
+    $("#f-ld").innerHTML=ld.map((l,i)=>`<button class="chip" data-rml="${i}">${esc(l)}<span class="x" aria-hidden="true">×</span></button>`).join("")||`<span class="sub">ยังไม่มีผู้นำ</span>`;
+  };
+  openDlg(`<h2>${rid?"ตั้งค่า "+esc(r.name):"เปิดรอบใหม่"}</h2>
+    <div class="row"><label class="f">ชื่อรอบ<input type="text" id="f-name" value="${esc(r.name)}"></label>
+    <label class="f">เริ่มวันที่<input type="date" id="f-start" value="${esc(r.start||"")}"></label>
+    <label class="f">สถานะ<select id="f-st"><option value="open" ${r.status==="open"?"selected":""}>เปิดอยู่</option><option value="draft" ${r.status==="draft"?"selected":""}>เตรียมเปิด</option><option value="closed" ${r.status==="closed"?"selected":""}>ปิดรอบ</option></select></label></div>
+    <div style="display:grid;gap:8px"><h3>ผู้ฝึก</h3><div class="chips" id="f-tr"></div>
+      <div class="row"><input type="text" id="f-tn" placeholder="ชื่อผู้ฝึก" aria-label="ชื่อผู้ฝึกใหม่"><button class="btn ghost" id="f-tadd">เพิ่ม</button></div>
+      <span class="sub">กดชื่อเพื่อเอาออก${rid?" · ผู้ฝึกที่เพิ่มระหว่างรอบ จะนับความสม่ำเสมอตั้งแต่วันนี้":""}</span></div>
+    <div style="display:grid;gap:8px"><h3>ผู้นำ / คนเปิด</h3><div class="chips" id="f-ld"></div>
+      <div class="row"><input type="text" id="f-ln" placeholder="ชื่อผู้นำ" aria-label="ชื่อผู้นำใหม่"><button class="btn ghost" id="f-ladd">เพิ่ม</button></div></div>
+    <div id="f-msg"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn ghost" id="f-cancel">ยกเลิก</button><button class="btn" id="f-save">${rid?"บันทึก":"เปิดรอบ"}</button></div>`);
+  draw();
+  $("#f-tr").onclick=e=>{const b=e.target.closest("[data-rm]");if(b){tr.splice(+b.dataset.rm,1);draw();}};
+  $("#f-ld").onclick=e=>{const b=e.target.closest("[data-rml]");if(b){ld.splice(+b.dataset.rml,1);draw();}};
+  const addT=()=>{const n=$("#f-tn").value.trim();if(!n)return;let id=n.replace(/[^a-zA-Z0-9]/g,"")||("t"+Date.now().toString(36));
+    while(tr.some(t=>t.id===id))id+="2";const t={id,name:n};if(rid)t.from=new Date().toISOString().slice(0,10);tr.push(t);$("#f-tn").value="";draw();};
+  const addL=()=>{const n=$("#f-ln").value.trim();if(n&&!ld.includes(n))ld.push(n);$("#f-ln").value="";draw();};
+  $("#f-tadd").onclick=addT;$("#f-ladd").onclick=addL;
+  $("#f-tn").onkeydown=e=>{if(e.key==="Enter")addT();};$("#f-ln").onkeydown=e=>{if(e.key==="Enter")addL();};
+  $("#f-cancel").onclick=closeDlg;
+  $("#f-save").onclick=async()=>{
+    const name=$("#f-name").value.trim();if(!name||!tr.length){$("#f-msg").innerHTML=`<div class="banner err">ใส่ชื่อรอบและผู้ฝึกอย่างน้อย 1 คน</div>`;return;}
+    const newId=rid||("r"+(Math.max(0,...roundList().map(x=>+String(x.id).replace(/\D/g,"")||0))+1));
+    const doc={...(rid?S.rounds[rid]:{order:Math.max(0,...roundList().map(x=>x.order||0))+1,kind:"full"}),name,start:$("#f-start").value,status:$("#f-st").value,trainees:tr,leaders:ld};
+    if(doc.status==="closed"&&!doc.end){const d=sessOf(newId).filter(s=>s.done!==false);doc.end=d.length?d[d.length-1].date:new Date().toISOString().slice(0,10);}
+    $("#f-save").disabled=true;
+    try{await S.db.collection("rounds").doc(newId).set(doc);S.view=newId;location.hash=newId;closeDlg();render();}
+    catch(e){fail(e);$("#f-msg").innerHTML=`<div class="banner err">บันทึกไม่สำเร็จ: ${esc(e.message||e.code)}</div>`;$("#f-save").disabled=false;}
+  };
+}
+
+async function toggleSign(sid,tid){
+  const s=S.sessions.find(x=>x.id===sid);if(!s||!writable())return;
+  const cur=!!(s.m||{})[tid]?.s;
+  try{await S.db.collection("sessions").doc(sid).update({m:{[tid]:{s:cur?0:1}}});}catch(e){fail(e);}
+}
+function fail(e){if(e&&e.code==="invalid_argument"&&S.canWrite==null){S.ro=true;setStatus();render();}
+  else if(e&&e.code==="quota_exceeded"){S.err="พื้นที่เก็บข้อมูลเต็ม ลบข้อมูลเก่าที่ไม่ใช้ก่อนบันทึกเพิ่ม";setStatus();}}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b||b.closest("#dlg"))return;
+  if(b.dataset.go){S.view=b.dataset.go;location.hash=b.dataset.go;render();}
+  else if(b.dataset.mode){S.mode=b.dataset.mode;render();}
+  else if(b.dataset.edit) sessionDlg(b.dataset.edit);
+  else if(b.dataset.sign){const [s,t]=b.dataset.sign.split("|");toggleSign(s,t);}
+  else if(b.dataset.act==="newsession") sessionDlg(null);
+  else if(b.dataset.act==="newround") roundDlg(null);
+  else if(b.dataset.act==="editround") roundDlg(S.view);
+});
+window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(h&&S.rounds[h]){S.view=h;render();}});
+
+/* ---------- data (snapshot) ---------- */
+S.rounds={"r1":{"name":"รอบ 1","order":1,"status":"closed","kind":"attendance","start":"2026-06-25","end":"2026-07-31","leaders":[],"trainees":[{"id":"KimmPloy","name":"KimmPloy"},{"id":"PLuck","name":"P'Luck"},{"id":"Wunsen","name":"Wunsen"},{"id":"PTommy","name":"P'Tommy"}],"official":{"KimmPloy":{"resp":1,"on":3,"top":5,"int":3,"cons":1,"total":2.6},"PLuck":{"resp":1,"on":5,"top":5,"int":5,"cons":3,"total":3.8},"Wunsen":{"resp":1,"on":3,"top":4,"int":3,"cons":1,"total":2.4},"PTommy":{"resp":0,"on":0,"top":0,"int":0,"cons":0,"total":0}},"notes":["รอบ 1 บันทึกเฉพาะการมาแต่ละครั้ง คะแนน 5 หัวข้อเป็นคะแนนที่ผู้ประเมินให้ (ยกมาจากชีต)","P'Tommy ไม่ได้เข้าร่วมเลยตลอดรอบ (0 จาก 28 ครั้ง)"]},"r2":{"name":"รอบ 2","order":2,"status":"closed","kind":"full","start":"2026-09-15","end":"2026-10-30","leaders":["P'Luck","Muii"],"trainees":[{"id":"Ploy","name":"Ploy"},{"id":"Kim","name":"Kim"},{"id":"Oak","name":"Oak"},{"id":"Built","name":"Built"},{"id":"Miu","name":"Miu","from":"2026-10-06"},{"id":"Khem","name":"Khem"},{"id":"Best","name":"Best"},{"id":"Baifern","name":"Baifern"}],"official":{"Ploy":{"resp":0,"on":4.47,"top":5,"int":4.21,"cons":1.9,"total":3.12},"Kim":{"resp":3.57,"on":3.57,"top":5,"int":4.43,"cons":3.5,"total":4.01},"Oak":{"resp":4,"on":3.78,"top":4,"int":4.89,"cons":4.5,"total":4.23},"Built":{"resp":1,"on":3,"top":5,"int":5,"cons":1,"total":3},"Miu":{"resp":1.25,"on":4.17,"top":4.58,"int":4.58,"cons":2.14,"total":3.34},"Khem":{"resp":1.67,"on":4.07,"top":3.33,"int":3.89,"cons":2.7,"total":3.13},"Best":{"resp":2.5,"on":3.89,"top":5,"int":4.03,"cons":1.8,"total":3.44},"Baifern":{"resp":3.59,"on":4.22,"top":3.44,"int":4.06,"cons":3.2,"total":3.7}},"notes":["ความรับผิดชอบของ Best และ Baifern ในชีตใช้สูตรนับของ Miu (ช่อง BD2, BJ2) ค่าที่ถูกคือ Best 3.06 (ชีต 2.50) และ Baifern 3.13 (ชีต 3.59)","ตรงหัวข้อของ Ploy, Kim, Oak ในตารางสรุปเป็นตัวเลขที่พิมพ์ใส่ (5.0, 5.0, 4.0) ส่วนตามสูตรได้ 4.21, 4.57, 4.89","Miu เริ่มเข้าทีม 6 ต.ค. ความสม่ำเสมอจึงนับจาก 28 ครั้ง ไม่ใช่ 50 ครั้ง","Miu มา 6 ต.ค. 19:00 แต่ไม่ได้ใส่คะแนนความตั้งใจ ครั้งนั้นจึงนับเป็น 0"]}};
+S.sessions=[{"id":"r1-20260625-1900","round":"r1","date":"2026-06-25","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{"a":1},"PTommy":{}}},{"id":"r1-20260626-1800","round":"r1","date":"2026-06-26","time":"18:00","done":true,"m":{"KimmPloy":{"a":1},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260630-1900","round":"r1","date":"2026-06-30","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260701-0830","round":"r1","date":"2026-07-01","time":"08:30","done":true,"m":{"KimmPloy":{},"PLuck":{},"Wunsen":{"a":1},"PTommy":{}}},{"id":"r1-20260702-0830","round":"r1","date":"2026-07-02","time":"08:30","done":true,"m":{"KimmPloy":{},"PLuck":{},"Wunsen":{"a":1},"PTommy":{}}},{"id":"r1-20260702-1900","round":"r1","date":"2026-07-02","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{},"Wunsen":{"a":1},"PTommy":{}}},{"id":"r1-20260708-1900","round":"r1","date":"2026-07-08","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260709-0830","round":"r1","date":"2026-07-09","time":"08:30","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260709-1900","round":"r1","date":"2026-07-09","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{"a":1},"PTommy":{}}},{"id":"r1-20260710-0830","round":"r1","date":"2026-07-10","time":"08:30","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260710-1900","round":"r1","date":"2026-07-10","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260714-0830","round":"r1","date":"2026-07-14","time":"08:30","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260714-1900","round":"r1","date":"2026-07-14","time":"19:00","done":true,"m":{"KimmPloy":{"a":1},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260715-0830","round":"r1","date":"2026-07-15","time":"08:30","done":true,"m":{"KimmPloy":{"a":1},"PLuck":{},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260715-1900","round":"r1","date":"2026-07-15","time":"19:00","done":true,"m":{"KimmPloy":{"a":1},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260716-0830","round":"r1","date":"2026-07-16","time":"08:30","done":true,"m":{"KimmPloy":{"a":1},"PLuck":{},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260717-0830","round":"r1","date":"2026-07-17","time":"08:30","done":true,"m":{"KimmPloy":{},"PLuck":{},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260717-1900","round":"r1","date":"2026-07-17","time":"19:00","done":true,"m":{"KimmPloy":{"a":1},"PLuck":{"a":1},"Wunsen":{"a":1},"PTommy":{}}},{"id":"r1-20260721-1900","round":"r1","date":"2026-07-21","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260722-0830","round":"r1","date":"2026-07-22","time":"08:30","done":true,"m":{"KimmPloy":{"a":1},"PLuck":{},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260723-1900","round":"r1","date":"2026-07-23","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260724-0830","round":"r1","date":"2026-07-24","time":"08:30","done":true,"m":{"KimmPloy":{},"PLuck":{},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260724-1900","round":"r1","date":"2026-07-24","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260728-1900","round":"r1","date":"2026-07-28","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260730-0830","round":"r1","date":"2026-07-30","time":"08:30","done":true,"m":{"KimmPloy":{},"PLuck":{},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260730-1900","round":"r1","date":"2026-07-30","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{"a":1},"PTommy":{}}},{"id":"r1-20260731-0830","round":"r1","date":"2026-07-31","time":"08:30","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{},"PTommy":{}}},{"id":"r1-20260731-1900","round":"r1","date":"2026-07-31","time":"19:00","done":true,"m":{"KimmPloy":{},"PLuck":{"a":1},"Wunsen":{"a":1},"PTommy":{}}},{"id":"r2-20260915-0900","round":"r2","date":"2026-09-15","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"t":1,"i":2.5},"Kim":{"a":1,"s":1,"t":1,"i":2.5},"Oak":{"a":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{},"Best":{},"Baifern":{}}},{"id":"r2-20260915-1900","round":"r2","date":"2026-09-15","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"a":1,"s":1,"t":1,"i":5},"Miu":{},"Khem":{},"Best":{},"Baifern":{}}},{"id":"r2-20260916-0900","round":"r2","date":"2026-09-16","time":"09:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"s":1},"Miu":{},"Khem":{},"Best":{},"Baifern":{}}},{"id":"r2-20260917-1000","round":"r2","date":"2026-09-17","time":"10:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"a":1,"s":1,"o":1,"i":5},"Oak":{"a":1,"o":1,"i":5},"Built":{},"Miu":{},"Khem":{},"Best":{},"Baifern":{}}},{"id":"r2-20260917-1900","round":"r2","date":"2026-09-17","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"i":2.5},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"s":1},"Miu":{},"Khem":{},"Best":{},"Baifern":{}}},{"id":"r2-20260918-1000","round":"r2","date":"2026-09-18","time":"10:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"o":1,"i":2.5},"Best":{},"Baifern":{}}},{"id":"r2-20260918-1900","round":"r2","date":"2026-09-18","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"s":1},"Miu":{},"Khem":{},"Best":{},"Baifern":{"a":1,"s":1,"o":1,"i":2.5}}},{"id":"r2-20260922-0830","round":"r2","date":"2026-09-22","time":"08:30","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"a":1,"s":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"a":1,"s":1,"t":1,"i":5},"Miu":{},"Khem":{"a":1,"o":1,"i":2.5},"Best":{},"Baifern":{"a":1,"s":1,"o":1,"i":2.5}}},{"id":"r2-20260922-2000","round":"r2","date":"2026-09-22","time":"20:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":2.5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{},"Best":{},"Baifern":{}}},{"id":"r2-20260923-0800","round":"r2","date":"2026-09-23","time":"08:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"t":1,"i":2.5},"Kim":{"a":1,"s":1,"t":1,"i":2.5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"a":1,"s":1,"o":1,"t":1,"i":5},"Miu":{},"Khem":{"a":1,"o":1,"i":2.5},"Best":{},"Baifern":{"a":1,"s":1,"o":1,"i":2.5}}},{"id":"r2-20260924-1000","round":"r2","date":"2026-09-24","time":"10:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{"a":1,"s":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"o":1,"i":2.5},"Best":{},"Baifern":{"a":1,"s":1,"o":1,"i":2.5}}},{"id":"r2-20260924-1700","round":"r2","date":"2026-09-24","time":"17:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":2.5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{},"Best":{},"Baifern":{}}},{"id":"r2-20260925-1000","round":"r2","date":"2026-09-25","time":"10:00","opener":"Muii","leaderPresent":0,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"i":2.5},"Kim":{"a":1,"s":1,"i":2.5},"Oak":{"a":1,"s":1,"t":1,"i":5},"Built":{"a":1,"s":1,"o":1,"t":1,"i":5},"Miu":{},"Khem":{"a":1,"o":1,"i":2.5},"Best":{"a":1,"s":1,"o":1,"t":1,"i":2.5},"Baifern":{"a":1,"s":1,"o":1,"i":2.5}}},{"id":"r2-20260925-1900","round":"r2","date":"2026-09-25","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"s":1,"o":1,"i":2.5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"o":1,"i":2.5},"Best":{"a":1,"s":1,"o":1,"t":1,"i":2.5},"Baifern":{"a":1,"s":1,"o":1,"i":2.5}}},{"id":"r2-20260929-0900","round":"r2","date":"2026-09-29","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{},"Oak":{"a":1,"s":1,"t":1,"i":5},"Built":{"a":1,"s":1,"o":1,"t":1,"i":5},"Miu":{},"Khem":{},"Best":{"a":1,"s":1,"o":1,"t":1,"i":2.5},"Baifern":{"a":1,"s":1,"o":1,"i":2.5}}},{"id":"r2-20260929-1900","round":"r2","date":"2026-09-29","time":"19:00","opener":"Muii","leaderPresent":0,"done":true,"m":{"Ploy":{"s":1},"Kim":{"s":1},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"o":1,"i":2.5},"Best":{},"Baifern":{}}},{"id":"r2-20260930-0900","round":"r2","date":"2026-09-30","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"i":5},"Kim":{"s":1},"Oak":{"a":1,"s":1,"t":1,"i":5},"Built":{"a":1,"o":1,"t":1,"i":5},"Miu":{},"Khem":{"a":1,"o":1,"i":2.5},"Best":{},"Baifern":{"a":1,"s":1,"o":1,"i":2.5}}},{"id":"r2-20260930-1900","round":"r2","date":"2026-09-30","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{},"Best":{},"Baifern":{"a":1,"s":1,"o":1,"i":2.5}}},{"id":"r2-20261001-0900","round":"r2","date":"2026-10-01","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"s":1},"Oak":{"s":1},"Built":{},"Miu":{},"Khem":{},"Best":{},"Baifern":{}}},{"id":"r2-20261001-1900","round":"r2","date":"2026-10-01","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"s":1},"Oak":{"s":1},"Built":{},"Miu":{},"Khem":{},"Best":{"a":1,"s":1,"o":1,"t":1,"i":2.5},"Baifern":{}}},{"id":"r2-20261002-0900","round":"r2","date":"2026-10-02","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"s":1},"Oak":{"s":1},"Built":{"s":1},"Miu":{},"Khem":{},"Best":{},"Baifern":{}}},{"id":"r2-20261002-1900","round":"r2","date":"2026-10-02","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"s":1},"Oak":{"s":1},"Built":{},"Miu":{},"Khem":{},"Best":{},"Baifern":{}}},{"id":"r2-20261006-0830","round":"r2","date":"2026-10-06","time":"08:30","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{},"Oak":{"a":1,"s":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"s":1,"o":1,"t":1,"i":5},"Best":{"a":1,"s":1,"t":1,"i":2.5},"Baifern":{"a":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261006-1900","round":"r2","date":"2026-10-06","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{},"Oak":{"a":1,"s":1,"t":1,"i":5},"Built":{},"Miu":{"a":1,"s":1},"Khem":{"s":1},"Best":{},"Baifern":{"a":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261007-0830","round":"r2","date":"2026-10-07","time":"08:30","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{},"Oak":{"a":1,"s":1,"t":1,"i":5},"Built":{"a":1,"s":1,"o":1,"t":1,"i":5},"Miu":{},"Khem":{},"Best":{},"Baifern":{"a":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261008-0900","round":"r2","date":"2026-10-08","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"a":1,"s":1,"t":1,"i":5},"Miu":{},"Khem":{"a":1,"s":1,"o":1,"t":1,"i":5},"Best":{},"Baifern":{"a":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261008-1900","round":"r2","date":"2026-10-08","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":2.5},"Kim":{},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{"a":1,"o":1,"t":1,"i":5},"Khem":{"a":1,"o":1,"t":1,"i":5},"Best":{"a":1,"o":1,"t":1,"i":5},"Baifern":{"a":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261009-0900","round":"r2","date":"2026-10-09","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{"a":1,"s":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"s":1,"o":1,"t":1,"i":5},"Best":{},"Baifern":{"a":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261009-1900","round":"r2","date":"2026-10-09","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"a":1,"o":1,"t":1,"i":5},"Miu":{"a":1,"s":1,"o":1,"t":1,"i":5},"Khem":{"a":1,"o":1,"t":1,"i":5},"Best":{"a":1,"s":1,"o":1,"t":1,"i":5},"Baifern":{"a":1,"t":1,"i":2.5}}},{"id":"r2-20261013-1700","round":"r2","date":"2026-10-13","time":"17:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"t":1,"i":5},"Best":{"a":1,"s":1,"o":1,"t":1,"i":5},"Baifern":{}}},{"id":"r2-20261014-0830","round":"r2","date":"2026-10-14","time":"08:30","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"s":1,"o":1,"t":1,"i":5},"Best":{},"Baifern":{"a":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261014-1900","round":"r2","date":"2026-10-14","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"s":1},"Miu":{"s":1},"Khem":{"a":1,"s":1,"o":1,"t":1,"i":5},"Best":{"a":1,"s":1,"o":1,"t":1,"i":5},"Baifern":{}}},{"id":"r2-20261015-0900","round":"r2","date":"2026-10-15","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"t":1,"i":2.5},"Built":{},"Miu":{},"Khem":{"a":1,"s":1,"o":1,"t":1,"i":5},"Best":{},"Baifern":{"a":1,"t":1,"i":2.5}}},{"id":"r2-20261015-1900","round":"r2","date":"2026-10-15","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":2.5},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"s":1},"Miu":{"a":1,"s":1,"o":1,"t":1,"i":5},"Khem":{"a":1,"t":1,"i":2.5},"Best":{"a":1,"s":1,"o":1,"t":1,"i":5},"Baifern":{}}},{"id":"r2-20261016-0900","round":"r2","date":"2026-10-16","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"o":1,"t":1,"i":5},"Best":{"a":1,"t":1,"i":5},"Baifern":{"a":1,"t":1,"i":5}}},{"id":"r2-20261016-1900","round":"r2","date":"2026-10-16","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{"a":1,"s":1,"t":1,"i":5},"Miu":{"s":1},"Khem":{"a":1,"s":1,"o":1,"t":1,"i":5},"Best":{"a":1,"t":1,"i":5},"Baifern":{}}},{"id":"r2-20261020-0830","round":"r2","date":"2026-10-20","time":"08:30","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"o":1,"t":1,"i":5},"Best":{},"Baifern":{"a":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261020-1900","round":"r2","date":"2026-10-20","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{"a":1,"s":1,"o":1,"t":1,"i":5},"Khem":{"a":1,"s":1,"o":1,"t":1,"i":5},"Best":{"a":1,"s":1,"o":1,"t":1,"i":5},"Baifern":{"a":1,"s":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261021-0830","round":"r2","date":"2026-10-21","time":"08:30","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"s":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"s":1,"t":1,"i":2.5},"Best":{},"Baifern":{"a":1,"s":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261021-1900","round":"r2","date":"2026-10-21","time":"19:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"s":1},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"o":1,"t":1,"i":5},"Best":{"s":1},"Baifern":{"a":1,"s":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261022-0900","round":"r2","date":"2026-10-22","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"a":1,"s":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{"a":1,"s":1,"o":1,"t":1,"i":5},"Best":{"a":1,"t":1,"i":5},"Baifern":{"a":1,"s":1,"t":1,"i":5}}},{"id":"r2-20261023-0900","round":"r2","date":"2026-10-23","time":"09:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"t":1,"i":5},"Built":{},"Miu":{"s":1},"Khem":{},"Best":{},"Baifern":{"a":1,"s":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261027-0830","round":"r2","date":"2026-10-27","time":"08:30","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"t":1,"i":5},"Built":{},"Miu":{"a":1,"t":1,"i":5},"Khem":{"a":1,"t":1,"i":2.5},"Best":{"a":1,"s":1,"o":1,"t":1,"i":2.5},"Baifern":{"a":1,"s":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261027-1800","round":"r2","date":"2026-10-27","time":"18:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{"a":1,"o":1,"t":1,"i":5},"Khem":{},"Best":{},"Baifern":{"a":1,"s":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261028-0830","round":"r2","date":"2026-10-28","time":"08:30","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"s":1,"t":1,"i":2.5},"Oak":{"a":1,"s":1,"t":1,"i":5},"Built":{},"Miu":{"a":1,"o":1,"t":1,"i":5},"Khem":{},"Best":{"a":1,"o":1,"t":1,"i":2.5},"Baifern":{"a":1,"s":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261028-1800","round":"r2","date":"2026-10-28","time":"18:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"o":1,"t":1,"i":2.5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{"a":1,"o":1,"t":1,"i":5},"Khem":{},"Best":{"a":1,"s":1,"o":1,"t":1,"i":5},"Baifern":{"a":1,"s":1,"o":1,"i":2.5}}},{"id":"r2-20261029-0900","round":"r2","date":"2026-10-29","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{},"Kim":{"a":1,"s":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{},"Khem":{},"Best":{},"Baifern":{"a":1,"s":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261029-1800","round":"r2","date":"2026-10-29","time":"18:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"a":1,"s":1,"o":1,"t":1,"i":5},"Oak":{"a":1,"s":1,"t":1,"i":2.5},"Built":{},"Miu":{"a":1,"s":1,"o":1,"t":1,"i":5},"Khem":{"a":1,"i":2.5},"Best":{"a":1,"s":1,"o":1,"t":1,"i":5},"Baifern":{"a":1,"s":1,"o":1,"t":1,"i":5}}},{"id":"r2-20261030-0900","round":"r2","date":"2026-10-30","time":"09:00","opener":"P'Luck","leaderPresent":1,"done":true,"m":{"Ploy":{"s":1},"Kim":{"s":1},"Oak":{"a":1,"s":1,"o":1,"t":1,"i":5},"Built":{},"Miu":{"a":1,"o":1,"t":1,"i":5},"Khem":{},"Best":{},"Baifern":{"a":1,"s":1,"t":1,"i":5}}},{"id":"r2-20261030-1800","round":"r2","date":"2026-10-30","time":"18:00","opener":"Muii","leaderPresent":1,"done":true,"m":{"Ploy":{"a":1,"s":1,"o":1,"t":1,"i":5},"Kim":{"s":1},"Oak":{"s":1},"Built":{},"Miu":{"a":1,"s":1,"o":1,"t":1,"i":5},"Khem":{},"Best":{"s":1},"Baifern":{"s":1}}}];
+S.db={};S.canWrite=false;S.tried=true;S.loaded={r:true,s:true};
+{const h=location.hash.slice(1);if(h&&S.rounds[h])S.view=h;}
+render();
+</script>
+</body>
+</html>
